@@ -2,45 +2,47 @@ import React, { useState, useEffect } from 'react';
 import { Image, View, Text, Dimensions, TouchableOpacity } from 'react-native';
 import { Grid, Col, Row } from 'react-native-easy-grid';
 import { Magnetometer } from 'expo-sensors';
+import MapView, { Marker } from 'react-native-maps';
 import styles from '../utils/styles';
 
 const { height, width } = Dimensions.get('window');
 
 export default CompassScr = ({ navigation }) => {
 
+    // CONSTS PARA O MAPA e BÚSSOLA
+    
     const [subscription, setSubscription] = useState(null);
     const [magnetometer, setMagnetometer] = useState(0);
-    const [compassData, setCompassData] = useState({});
 
     useEffect(() => {
-        _toggle();
+        toggle();
         return () => {
-            _unsubscribe();
+            unsubscribe();
         };
     }, []);
 
-    const _toggle = () => {
+    const toggle = () => {
         if (subscription) {
-            _unsubscribe();
+            unsubscribe();
         } else {
-            _subscribe();
+            subscribe();
         }
     };
 
-    const _subscribe = () => {
+    const subscribe = () => {
         setSubscription(
             Magnetometer.addListener((data) => {
-                setMagnetometer(_angle(data));
+                setMagnetometer(angle(data));
             })
         );
     };
 
-    const _unsubscribe = () => {
+    const unsubscribe = () => {
         subscription && subscription.remove();
         setSubscription(null);
     };
 
-    const _angle = (magnetometer) => {
+    const angle = (magnetometer) => {
         let angle = 0;
         if (magnetometer) {
             let { x, y, z } = magnetometer;
@@ -53,69 +55,52 @@ export default CompassScr = ({ navigation }) => {
         return Math.round(angle);
     };
 
-    const _direction = (degree) => {
+    // DIREÇÕES DA BÚSSOLA (NORTE, SUL, LESTE, OESTE, NORDESTE, SUDESTE, SUDOESTE, NOROESTE)
+
+    const direction = (degree) => {
         if (degree >= 22.5 && degree < 67.5) {
-            return 'NE';
+            return 'NORDESTE';
         }
         else if (degree >= 67.5 && degree < 112.5) {
-            return 'E';
+            return 'LESTE';
         }
         else if (degree >= 112.5 && degree < 157.5) {
-            return 'SE';
+            return 'SUDESTE';
         }
         else if (degree >= 157.5 && degree < 202.5) {
-            return 'S';
+            return 'SUL';
         }
         else if (degree >= 202.5 && degree < 247.5) {
-            return 'SW';
+            return 'SUDOESTE';
         }
         else if (degree >= 247.5 && degree < 292.5) {
-            return 'W';
+            return 'OESTE';
         }
         else if (degree >= 292.5 && degree < 337.5) {
-            return 'NW';
+            return 'NOROESTE';
         }
         else {
-            return 'N';
+            return 'NORTE';
         }
     };
 
-        const getHeadingText = () => {
-            if (compassData && compassData.hasOwnProperty('x') && compassData.hasOwnProperty('y')) {
-                const angle = Math.atan2(compassData.y, compassData.x);
-                const degrees = (angle * 180) / Math.PI;
-                const adjustedDegrees = (degrees + 360) % 360;
-                if (adjustedDegrees >= 45 && adjustedDegrees < 135) {
-                    return 'Sul';
-                } else if (adjustedDegrees >= 135 && adjustedDegrees < 225) {
-                    return 'Oeste';
-                } else if (adjustedDegrees >= 225 && adjustedDegrees < 315) {
-                    return 'Norte';
-                } else {
-                    return 'Leste';
-                }
-            } else {
-                return 'Calculando...';
-            }
-        };
-
-        const _degree = (magnetometer) => {
+        const degree = (magnetometer) => {
             return magnetometer - 90 >= 0 ? magnetometer - 90 : magnetometer + 271;
         };
 
         return (
-            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'black' }}>
+            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#484d50' }}>
 
-                <Text>Esta é a nossa página de bússola.</Text>
+                <Text >Esta é a nossa página de bússola.</Text>
 
                 <TouchableOpacity 
                 onPress={() => navigation.navigate("Home")}>
                     <Text>Voltar para a Home</Text>
                 </TouchableOpacity>
 
-                <Text style={styles.Heading}>{getHeadingText()}</Text>
+                <Text style={styles.Heading}>{direction(degree(magnetometer))}</Text>
 
-                <Grid style={{ backgroundColor: 'black' }}>
+                <Grid>
                     <Row style={{ alignItems: 'center' }} size={.9}>
                         <Col style={{ alignItems: 'center' }}>
                             <Text
@@ -124,7 +109,7 @@ export default CompassScr = ({ navigation }) => {
                                     fontSize: height / 26,
                                     fontWeight: 'bold'
                                 }}>
-                                {_direction(_degree(magnetometer))}
+                                {direction(degree(magnetometer))}
                             </Text>
                         </Col>
                     </Row>
@@ -148,7 +133,7 @@ export default CompassScr = ({ navigation }) => {
                             position: 'absolute',
                             textAlign: 'center'
                         }}>
-                            {_degree(magnetometer)}°
+                            {degree(magnetometer)}°
                         </Text>
 
                         <Col style={{ alignItems: 'center' }}>
