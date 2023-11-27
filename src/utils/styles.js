@@ -34,7 +34,7 @@ export const styles = StyleSheet.create({
   TextC: {
     fontSize: 18,
     color: '#fff',
-    marginBottom: 10,
+    marginBottom: 15,
   },
 
   TextH: {
