@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Image, View, Text, Dimensions, TouchableOpacity } from 'react-native';
+import { Image, View, Text, Dimensions, TouchableOpacity, ScrollView } from 'react-native';
 import { Grid, Col, Row } from 'react-native-easy-grid';
 import { Magnetometer } from 'expo-sensors';
+import * as Location from 'expo-location';
 import MapView, { Marker } from 'react-native-maps';
 import styles from '../utils/styles';
 
@@ -10,9 +11,28 @@ const { height, width } = Dimensions.get('window');
 export default CompassScr = ({ navigation }) => {
 
     // CONSTS PARA O MAPA e BÚSSOLA
-    
+
     const [subscription, setSubscription] = useState(null);
     const [magnetometer, setMagnetometer] = useState(0);
+    const [location, setLocation] = useState(null);
+
+    // USEEFECT PARA O MAPA
+
+    useEffect(() => {
+        (async () => {
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                console.log('Não tem permissão');
+                return;
+            }
+
+            let info = await Location.getCurrentPositionAsync({});
+            console.log(info);
+            setLocation(info);
+        })();
+    }, []);
+
+    // USEEFFECT PARA A BÚSSOLA
 
     useEffect(() => {
         toggle();
@@ -84,70 +104,111 @@ export default CompassScr = ({ navigation }) => {
         }
     };
 
-        const degree = (magnetometer) => {
-            return magnetometer - 90 >= 0 ? magnetometer - 90 : magnetometer + 271;
-        };
+    const degree = (magnetometer) => {
+        return magnetometer - 90 >= 0 ? magnetometer - 90 : magnetometer + 271;
+    };
 
-        return (
-            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#484d50' }}>
+    return (
 
-                <Text >Esta é a nossa página de bússola.</Text>
+        <ScrollView>
+        <View style={
+            styles.BodyC
+        }>
 
-                <TouchableOpacity 
-                onPress={() => navigation.navigate("Home")}>
-                    <Text>Voltar para a Home</Text>
-                </TouchableOpacity>
+            <Text style={styles.TextC}>Esta é a nossa página de bússola.</Text>
 
-                <Text style={styles.Heading}>{direction(degree(magnetometer))}</Text>
+            <TouchableOpacity
+                onPress={() => navigation.navigate("Home")}
+                style={styles.Touchzin}
+            >
+                <Text style={styles.TextCT}>Voltar para a Home</Text>
+            </TouchableOpacity>
 
-                <Grid>
-                    <Row style={{ alignItems: 'center' }} size={.9}>
-                        <Col style={{ alignItems: 'center' }}>
-                            <Text
-                                style={{
+            <Text style={styles.Heading}>
+                {direction(degree(magnetometer))}
+            </Text>
+
+            <Grid>
+                <Row style={{ alignItems: 'center' }} size={.6}>
+                    <Col style={{ alignItems: 'center' }}>
+                        <Text
+                            style={
+                                {
                                     color: '#fff',
-                                    fontSize: height / 26,
+                                    // fontSize: height / 26,
                                     fontWeight: 'bold'
-                                }}>
-                                {direction(degree(magnetometer))}
-                            </Text>
-                        </Col>
-                    </Row>
+                                }
+                            }>
+                            {direction(degree(magnetometer))}
+                        </Text>
+                    </Col>
+                </Row>
 
-                    <Row style={{ alignItems: 'center' }} size={.1}>
-                        <Col style={{ alignItems: 'center' }}>
-                            <View style={{ position: 'absolute', width: width, alignItems: 'center', top: 0 }}>
-                                <Image source={require('../assets/compass_pointer.png')} style={{
+                <Row style={{ alignItems: 'center' }} size={.1}>
+                    <Col style={{ alignItems: 'center' }}>
+                        <View style={
+                            {
+                                position: 'absolute',
+                                width: width,
+                                alignItems: 'center',
+                                top: 0
+                            }
+                        }>
+                            <Image source={require('../assets/compass_pointer.png')} style={
+                                {
                                     height: height / 26,
                                     resizeMode: 'contain'
-                                }} />
-                            </View>
-                        </Col>
-                    </Row>
+                                }
+                            } />
+                        </View>
+                    </Col>
+                </Row>
 
-                    <Row style={{ alignItems: 'center' }} size={2}>
-                        <Text style={{
-                            color: '#fff',
-                            fontSize: height / 27,
-                            width: width,
-                            position: 'absolute',
-                            textAlign: 'center'
-                        }}>
-                            {degree(magnetometer)}°
-                        </Text>
+                <Row style={{ alignItems: 'center' }} size={0.7}>
+                    <Text style={styles.TextDeg}>
+                        {degree(magnetometer)}°
+                    </Text>
 
-                        <Col style={{ alignItems: 'center' }}>
+                    <Col style={{ alignItems: 'center' }}>
 
-                            <Image source={require("../assets/compass_bg.png")} style={{
+                        <Image source={require("../assets/compass_bg.png")} style={
+                            {
                                 height: width - 80,
                                 justifyContent: 'center',
                                 alignItems: 'center',
                                 resizeMode: 'contain',
                                 transform: [{ rotate: 360 - magnetometer + 'deg' }]
-                            }} />
-                        </Col>
-                    </Row>
-                </Grid>
+                            }
+                        } />
+                    </Col>
+                </Row>
+            </Grid>
+            <View style={styles.infoContainer}>
+                <Text style={styles.infoText}>
+                    Latitude: {location?.coords.latitude}, Longitude: {location?.coords.longitude}
+                </Text>
             </View>
-        );
-    }
+            {location && (
+                <MapView
+                    style={styles.map}
+                    initialRegion={{
+                        latitude: location.coords.latitude,
+                        longitude: location.coords.longitude,
+                        latitudeDelta: 0.0922,
+                        longitudeDelta: 0.0421,
+                    }}
+                >
+                    <Marker
+                        coordinate={{
+                            latitude: location.coords.latitude,
+                            longitude: location.coords.longitude,
+                        }}
+                        title="My Location"
+                        description="This is where I am"
+                    />
+                </MapView>
+            )}
+        </View>
+        </ScrollView>
+    );
+}
