@@ -3,9 +3,14 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
   BodyH: {
     flex: 1,
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
+  Heading: {
+    fontSize: 30,
+    color: '#fff',
+  },
   
 });
 

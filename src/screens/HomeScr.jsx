@@ -10,6 +10,7 @@ export default function HomeScr({navigation}) {
             <Text>Esta é a nossa página inicial.</Text>
             <Text>A dupla é composta por Ana Beatriz & Laiz Detros.</Text>
             <TouchableOpacity onPress={() => navigation.navigate("Compass")}><Text>Bússola</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("Comp")}><Text>Pág Test</Text></TouchableOpacity>
         </View>
     );
 }
