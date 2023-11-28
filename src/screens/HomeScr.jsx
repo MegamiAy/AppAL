@@ -13,10 +13,10 @@ export default function HomeScr({ navigation }) {
                 onPress={() => navigation.navigate("Compass")}
                 style={styles.Touchzin}
             ><Text style={styles.TextCT}>Bússola</Text></TouchableOpacity>
-            <TouchableOpacity
+            {/* <TouchableOpacity
                 onPress={() => navigation.navigate("Comp")}
                 style={styles.Touchzin}
-            ><Text style={styles.TextCT}>TESTESSSSSSS</Text></TouchableOpacity>
+            ><Text style={styles.TextCT}>TESTESSSSSSS</Text></TouchableOpacity> */}
         </View>
     );
 }
