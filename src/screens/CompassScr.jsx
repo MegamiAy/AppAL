@@ -75,10 +75,9 @@ export default CompassScr = ({ navigation }) => {
         return Math.round(angle);
     };
 
-    // DIREÇÕES DA BÚSSOLA (NORTE, SUL, LESTE, OESTE, NORDESTE, SUDESTE, SUDOESTE, NOROESTE)
-
     const direction = (degree) => {
-        if (degree >= 22.5 && degree < 67.5) {
+
+        if (degree >= 22.5 && degree < 67.5) {           
             return 'NORDESTE';
         }
         else if (degree >= 67.5 && degree < 112.5) {
@@ -111,9 +110,14 @@ export default CompassScr = ({ navigation }) => {
     return (
 
         <ScrollView>
-        <View style={
-            styles.BodyC
-        }>
+        <View style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: '#484d50',
+            paddingTop: 100,
+
+        }}>
 
             <Text style={styles.TextC}>Esta é a nossa página de bússola.</Text>
 
